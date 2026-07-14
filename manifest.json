@@ -1,0 +1,22 @@
+{
+  "name": "SARGAM Presupuestos A/C",
+  "short_name": "SARGAM",
+  "description": "Generador de presupuestos Daikin para SARGAM Instalaciones",
+  "start_url": ".",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#002060",
+  "theme_color": "#002060",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
