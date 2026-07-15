@@ -1944,15 +1944,17 @@ function applyStatePatch(patch) {
         if(idx >= 0) {
           const existing = state.options[idx];
           // Si el patch no trae sections, conservar las existentes
-          const merged = Object.assign({}, existing, {
+          const merged = {
+            id: existing.id,
+            letter: existing.letter,
             title: po.title !== undefined ? po.title : existing.title,
             subtitle: po.subtitle !== undefined ? po.subtitle : existing.subtitle,
             badge: po.badge !== undefined ? po.badge : existing.badge,
             enabled: po.enabled !== undefined ? po.enabled : existing.enabled,
-            pros: po.pros !== undefined ? po.pros : existing.pros,
-            cons: po.cons !== undefined ? po.cons : existing.cons,
-            sections: po.sections !== undefined ? buildOption(po, i).sections : existing.sections,
-          });
+            pros: po.pros !== undefined ? po.pros : (existing.pros || []),
+            cons: po.cons !== undefined ? po.cons : (existing.cons || []),
+            sections: po.sections !== undefined ? buildOption(po, i).sections : (existing.sections || []),
+          };
           state.options[idx] = merged;
         } else {
           state.options.push(buildOption(po, state.options.length));
