@@ -306,6 +306,12 @@
     <div style="font-size:10px;color:var(--gray-500);">Madrid centro / >30 min Leganés</div></div>
   </label>
 
+  <label class="surcharge-toggle" id="simple-toggle" for="simple-cb" style="margin-top:6px;">
+    <input type="checkbox" id="simple-cb" onchange="applySimpleMode(this.checked)">
+    <div><div style="font-size:11px;font-weight:600;color:var(--gray-700);">📄 Presupuesto simple</div>
+    <div style="font-size:10px;color:var(--gray-500);">Oculta comparativa, ventajas y extras (visitas técnicas, servicios puntuales)</div></div>
+  </label>
+
   <hr class="sep">
   <div class="sec-title">📝 Nota adicional</div>
   <div class="fg"><textarea id="ppto-nota" rows="2" oninput="syncAndPreview()"></textarea></div>
@@ -426,7 +432,7 @@ const ALL_GROUPS = [...new Set(CATALOG.map(i => i.group))].sort();
 
 // ═══ STATE ═══
 let state = {
-  ppto: { num:'', fecha:'', desc:'', nota:'', surcharge:false },
+  ppto: { num:'', fecha:'', desc:'', nota:'', surcharge:false, simple:false },
   client: { nombre:'', dir:'', tel:'', email:'', lead:'' },
   rooms: [
     { id:'r1', name:'Salón', m2:27, sensacion:'Calurosa', kw:3.5 },
@@ -514,6 +520,12 @@ function updateRoom(i,f,v) { state.rooms[i][f]=v; updatePreview(); }
 function applySurcharge(checked) {
   state.ppto.surcharge = checked;
   document.getElementById('surcharge-toggle').classList.toggle('active', checked);
+  syncAndPreview();
+}
+
+function applySimpleMode(checked) {
+  state.ppto.simple = checked;
+  document.getElementById('simple-toggle').classList.toggle('active', checked);
   syncAndPreview();
 }
 
@@ -1516,6 +1528,8 @@ function updatePreview() {
   ${state.client.lead?`<tr><td>Origen del lead</td><td><em>${state.client.lead}</em></td></tr>`:''}
 </table>
 
+${state.ppto.nota ? `<div class="nota" style="margin-top:8px;font-size:8pt;color:#7a5200;background:#fff8e1;border:1px solid #f0c040;border-radius:4px;padding:7px 9px;font-style:italic;">⚠ ${state.ppto.nota}</div>` : ''}
+
 <!-- ══ DIMENSIONADO ══ -->
 ${state.rooms.length > 0 ? `<div class="sec">DIMENSIONADO POR ESTANCIA</div>
 <table class="tdim">
@@ -1536,6 +1550,7 @@ ${detalleHtml}
 ${footerHtml(en.length<=3?2:3)}
 
 <!-- ══ COMPARATIVA ══ -->
+${state.ppto.simple ? '' : `
 <div class="pb"></div>
 <div class="sec">COMPARATIVA TÉCNICA — ${en.length} OPCIONES</div>
 ${compTable()}
@@ -1543,6 +1558,7 @@ ${compTable()}
 <!-- ══ VENTAJAS ══ -->
 <div class="sec">VENTAJAS E INCONVENIENTES POR OPCIÓN</div>
 ${ventRows.join('')}
+`}
 ${footerHtml(en.length<=3?3:4)}
 
 <!-- ══ ENERGÍA ══ -->
@@ -1556,6 +1572,7 @@ ${hasPerfera?`<div class="sec">BALANCE ENERGÉTICO — Daikin Perfera A+++ · R-
 <div class="nota"><b>Flash Streamer (solo opciones Perfera):</b> Elimina hasta el 99,9% de virus, bacterias, alérgenos y COVs. Recomendado para viviendas con niños, mascotas o alergias.</div>`:''}
 
 <!-- ══ SERVICIOS ══ -->
+${state.ppto.simple ? '' : `
 <div class="sec">SERVICIOS INCLUIDOS EN TODAS LAS OPCIONES</div>
 <ul class="cond-list">
   <li>Suministro de equipos Daikin de la opción elegida</li><li>Soportes de pared para unidades exteriores</li>
@@ -1564,6 +1581,7 @@ ${hasPerfera?`<div class="sec">BALANCE ENERGÉTICO — Daikin Perfera A+++ · R-
   <li>Puesta en marcha y verificación del sistema</li><li>Mano de obra de oficial frigorista cualificado SARGAM</li>
   <li>Garantía oficial Daikin: 3 años compresor + 2 años electrónica</li><li>Desplazamiento incluido${city?' ('+city+' — base Leganés)':''}</li>
 </ul>
+`}
 
 <!-- ══ CONDICIONES ══ -->
 <div class="sec">CONDICIONES ECONÓMICAS</div>
@@ -1577,6 +1595,7 @@ ${hasPerfera?`<div class="sec">BALANCE ENERGÉTICO — Daikin Perfera A+++ · R-
 </table>
 
 <!-- ══ EXTRAS ══ -->
+${state.ppto.simple ? '' : `
 <div class="sec">TRABAJOS ADICIONALES — SOLO SI FUESE NECESARIO</div>
 <p style="font-size:7.8pt;color:#444;line-height:1.6;margin-bottom:5px;">La instalación estándar incluye los conceptos anteriores. En caso de que fuese necesario algún trabajo adicional, se aplicarán los siguientes precios previa comunicación y aceptación del cliente.</p>
 ${(() => {
@@ -1595,9 +1614,7 @@ ${(() => {
   const totalRow = totalExtras > 0
     ? `<tr class="tf-base"><td colspan="4" class="r"><b>TOTAL TRABAJOS ADICIONALES S/IVA</b></td><td class="r"><b>${fmtE(totalExtras)}</b></td></tr>`
     : '';
-  const notaRow = state.ppto.nota
-    ? `<tr><td colspan="5" style="font-size:6.8pt;color:#7a5200;background:#fff8e1;border-top:1px solid #f0c040;padding:5px 8px;font-style:italic;">⚠ ${state.ppto.nota}</td></tr>`
-    : '';
+  const notaRow = '';
   return `<table class="ext-table">
   <thead><tr>
     <th style="text-align:left;width:48%;">Concepto</th>
@@ -1611,6 +1628,7 @@ ${(() => {
 </table>`;
 })()}
 <p style="font-size:6.5pt;color:#888;line-height:1.4;margin-bottom:6px;">Todos los precios de extras son sin IVA (21%). Solo se facturarán los conceptos necesarios, previa comunicación al cliente.</p>
+`}
 
 <!-- ══ ACEPTACIÓN ══ -->
 <div class="acept">
@@ -1982,6 +2000,10 @@ function applyStatePatch(patch) {
     if(patch.ppto.surcharge !== undefined) {
       document.getElementById('surcharge-cb').checked = patch.ppto.surcharge;
       document.getElementById('surcharge-toggle').classList.toggle('active', patch.ppto.surcharge);
+    }
+    if(patch.ppto.simple !== undefined) {
+      document.getElementById('simple-cb').checked = patch.ppto.simple;
+      document.getElementById('simple-toggle').classList.toggle('active', patch.ppto.simple);
     }
   }
   if(patch.client) {
