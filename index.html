@@ -1936,8 +1936,10 @@ function applyStatePatch(patch) {
       };
     };
 
-    // Merge: solo actualiza las opciones cuya letter aparece en el patch
-    if(patchLetters.length > 0 && patchLetters.length < existingLetters.length) {
+    // Merge: si TODAS las letters del patch ya existen en state → merge parcial
+    // Reemplazar solo si el patch tiene opciones que NO existen en state
+    const allExist = patchLetters.length > 0 && patchLetters.every(l => existingLetters.includes(l));
+    if(allExist) {
       patch.options.forEach((po, i) => {
         const letter = po.letter;
         const idx = state.options.findIndex(o => o.letter === letter);
